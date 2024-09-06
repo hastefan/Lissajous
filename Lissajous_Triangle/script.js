@@ -1,31 +1,4 @@
-let canvas = document.getElementById('canvas');
-/** @type {CanvasRenderingContext2D} */
-let ctx = canvas.getContext('2d');
-
-/*
-// fit canvas to screen
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-*/
-
-ctx.lineWidth = 1;
-ctx.fillStyle = "white";
-
-let canvasWidth = canvas.width;
-let canvasHeight = canvas.height;
-let a = 80;
-let h = Math.sqrt(Math.pow(a, 2) - Math.pow(a / 2, 2));
-let gap = a * 0.2;
-let rows = Math.floor(canvasHeight / (h + gap)) - 1;
-let cols = Math.floor(canvasWidth / (a + gap)) - 1;
-let progress = 0;
-
-let images = [[]];
-for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-        images[i] = [];
-    }
-}
+"use strict";
 
 class LissajousImage {
     constructor() {
@@ -39,11 +12,72 @@ class LissajousImage {
     }
 }
 
+let canvas = document.getElementById('canvas');
+/** @type {CanvasRenderingContext2D} */
+let ctx = canvas.getContext('2d');
+
+let rowSlider = document.getElementById('rowSlider');
+let colSlider = document.getElementById('colSlider');
+let sideLengthSlider = document.getElementById('sideLengthSlider');
+
+
+/*
+// fit canvas to screen
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+*/
+
+ctx.lineWidth = 1;
+ctx.fillStyle = "white";
+
+let canvasWidth;
+let canvasHeight;
+
+let a = 80;
+let h = Math.sqrt(Math.pow(a, 2) - Math.pow(a / 2, 2));
+let gap = a * 0.2;
+let rows = 6;
+let cols = 6;
+let progress = 0;
+
+let images = [];
+
 let strokeY = [];
 let strokeX = [];
 
 initValues();
 requestAnimationFrame(draw);
+
+function initValues() {
+    a = parseInt(sideLengthSlider.value);
+    rows = parseInt(rowSlider.value);
+    cols = parseInt(colSlider.value);
+
+    h = Math.sqrt(Math.pow(a, 2) - Math.pow(a / 2, 2));
+    gap = a * 0.2;
+
+    canvasHeight = rows * (h + gap) + (h + gap);
+    canvasWidth = cols * (a + gap) + (a + gap);
+    canvas.height = canvasHeight;
+    canvas.width = canvasWidth;
+
+    progress = 0;
+    images = [];
+    for (let i = 0; i < rows; i++) {
+        images[i] = [];
+    }
+
+    initializeLissajousArray();
+}
+
+function initializeLissajousArray() {
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            images[i][j] = new LissajousImage();
+        }
+    }
+}
+
 function draw(timeStamp) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     drawTable();
@@ -134,14 +168,6 @@ function drawTable() {
     }
 }
 
-function initializeLissajousArray() {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            images[i][j] = new LissajousImage();
-        }
-    }
-}
-
 function drawLissajousImages() {
     ctx.strokeStyle = "cyan";
     for (let i = 0; i < rows; i++) {
@@ -159,39 +185,6 @@ function drawLissajousImages() {
     }
 }
 
-function initValues() {
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    h = Math.sqrt(Math.pow(a, 2) - Math.pow(a / 2, 2));
-    gap = a * 0.2;
-    rows = Math.floor(canvasHeight / (h + gap)) - 1;
-    cols = Math.floor(canvasWidth / (a + gap)) - 1;
-    progress = 0;
-    images = [[]];
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            images[i] = [];
-        }
-    }
-
-    initializeLissajousArray();
-}
-
-let widthSlider = document.getElementById('widthSlider');
-let heightSlider = document.getElementById('heightSlider');
-let sideSlider = document.getElementById('sideSlider');
-
-widthSlider.addEventListener("change", (event) => {
-    canvas.width = parseInt(widthSlider.value);
-    initValues();
-});
-
-heightSlider.addEventListener("change", (event) => {
-    canvas.height = parseInt(heightSlider.value);
-    initValues();
-});
-
-sideSlider.addEventListener("change", (event) => {
-    a = parseInt(sideSlider.value);
-    initValues();
-});
+rowSlider.addEventListener("change",initValues);
+colSlider.addEventListener("change", initValues);
+sideLengthSlider.addEventListener("change", initValues);
